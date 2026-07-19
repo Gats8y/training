@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>訓練紀錄 · 島峰計畫</title>
+<style>
+:root{
+  --abyss:#07131c;
+  --deep:#0d2230;
+  --surface:#12303f;
+  --line:#1d4557;
+  --ice:#e8f4f8;
+  --mute:#7fa3b4;
+  --alt:#d4a017;      /* 高地金 — 主強調 */
+  --sea:#2a9d8f;      /* 海 */
+  --warn:#e07a5f;
+  --ok:#5fb87a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--abyss);
+  color:var(--ice);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  line-height:1.6;
+  padding-bottom:90px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+
+/* ---- 頂部海拔帶 ---- */
+header{
+  padding:22px 0 16px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden;
+}
+.alt-line{
+  position:absolute;inset:0;
+  opacity:.16;pointer-events:none;
+}
+.hd-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;position:relative}
+h1{
+  font-size:19px;font-weight:700;letter-spacing:.5px;
+}
+h1 span{color:var(--alt)}
+.tagline{
+  font-size:11px;color:var(--mute);letter-spacing:2px;
+  text-transform:uppercase;margin-top:2px;
+}
+.countdown{
+  text-align:right;flex-shrink:0;
+}
+.countdown .n{
+  font-size:26px;font-weight:700;color:var(--alt);
+  font-variant-numeric:tabular-nums;line-height:1;
+}
+.countdown .l{font-size:10px;color:var(--mute);letter-spacing:1px}
+
+/* ---- 分頁 ---- */
+nav{
+  display:flex;gap:2px;background:var(--deep);
+  border-radius:10px;padding:4px;margin-bottom:20px;
+}
+nav button{
+  flex:1;background:none;border:none;color:var(--mute);
+  padding:9px 4px;border-radius:7px;cursor:pointer;
+  font-size:13px;font-weight:600;font-family:inherit;
+  transition:.15s;
+}
+nav button.on{background:var(--surface);color:var(--ice)}
+nav button:focus-visible{outline:2px solid var(--alt);outline-offset:1px}
+
+section{display:none}
+section.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ---- 通用卡片 ---- */
+.card{
+  background:var(--deep);border:1px solid var(--line);
+  border-radius:12px;padding:16px;margin-bottom:14px;
+}
+.card h2{
+  font-size:14px;font-weight:700;margin-bottom:12px;
+  letter-spacing:.5px;display:flex;align-items:center;gap:8px;
+}
+.card h2::before{
+  content:"";width:3px;height:14px;background:var(--alt);border-radius:2px;
+}
+label{
+  display:block;font-size:11px;color:var(--mute);
+  margin-bottom:5px;letter-spacing:.8px;font-weight:600;
+}
+input,select,textarea{
+  width:100%;background:var(--abyss);border:1px solid var(--line);
+  color:var(--ice);border-radius:8px;padding:10px;
+  font-size:15px;font-family:inherit;
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--alt);outline-offset:-1px;border-color:transparent}
+textarea{resize:vertical;min-height:64px}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.field{margin-bottom:12px}
+
+button.act{
+  background:var(--alt);color:var(--abyss);border:none;
+  padding:12px;border-radius:9px;font-size:14px;font-weight:700;
+  cursor:pointer;width:100%;font-family:inherit;
+}
+button.act:hover{filter:brightness(1.08)}
+button.act:focus-visible{outline:2px solid var(--ice);outline-offset:2px}
+button.ghost{
+  background:none;border:1px solid var(--line);color:var(--mute);
+  padding:9px;border-radius:8px;font-size:12px;cursor:pointer;
+  font-family:inherit;font-weight:600;
+}
+button.ghost:hover{border-color:var(--alt);color:var(--alt)}
+
+/* ---- 部位選擇 ---- */
+.parts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.parts button{
+  background:var(--abyss);border:1px solid var(--line);color:var(--mute);
+  padding:7px 12px;border-radius:20px;font-size:12.5px;cursor:pointer;
+  font-family:inherit;font-weight:600;transition:.15s;
+}
+.parts button.on{background:var(--alt);color:var(--abyss);border-color:var(--alt)}
+.parts button:focus-visible{outline:2px solid var(--alt);outline-offset:2px}
+
+/* ---- 動作列 ---- */
+.exlist{margin-top:4px}
+.ex{
+  display:grid;grid-template-columns:1fr 62px 52px 52px 30px;
+  gap:6px;align-items:center;margin-bottom:7px;
+}
+.ex input{padding:8px;font-size:13.5px}
+.ex .del{
+  background:none;border:none;color:var(--mute);cursor:pointer;
+  font-size:18px;padding:0;line-height:1;font-family:inherit;
+}
+.ex .del:hover{color:var(--warn)}
+.exhead{
+  display:grid;grid-template-columns:1fr 62px 52px 52px 30px;
+  gap:6px;font-size:10px;color:var(--mute);
+  letter-spacing:1px;margin-bottom:5px;padding:0 2px;font-weight:600;
+}
+
+/* ---- 地點切換 ---- */
+.venue{display:flex;gap:6px;margin-bottom:12px}
+.venue button{
+  flex:1;background:var(--abyss);border:1px solid var(--line);
+  color:var(--mute);padding:10px;border-radius:8px;cursor:pointer;
+  font-size:13px;font-family:inherit;font-weight:600;
+}
+.venue button.on{border-color:var(--alt);color:var(--alt);background:rgba(212,160,23,.08)}
+
+.hint{
+  font-size:11.5px;color:var(--mute);line-height:1.5;
+  padding:9px 11px;background:rgba(212,160,23,.07);
+  border-left:2px solid var(--alt);border-radius:0 6px 6px 0;margin-bottom:12px;
+}
+
+/* ---- 課表執行 ---- */
+.bar{height:5px;background:var(--abyss);border-radius:3px;overflow:hidden;margin-top:9px}
+.bar-f{height:100%;width:0;background:var(--alt);transition:width .3s}
+.grp{
+  font-size:11px;color:var(--alt);letter-spacing:1.5px;font-weight:700;
+  margin:18px 0 8px;padding-left:2px;
+}
+.mv{
+  background:var(--deep);border:1px solid var(--line);
+  border-radius:11px;margin-bottom:9px;overflow:hidden;
+}
+.mv.done{border-color:var(--ok)}
+.mv-h{
+  display:flex;align-items:center;gap:10px;padding:13px;cursor:pointer;
+}
+.mv-h:hover{background:rgba(255,255,255,.02)}
+.mv-num{
+  width:26px;height:26px;border-radius:7px;flex-shrink:0;
+  background:var(--abyss);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--mute);
+}
+.mv.done .mv-num{background:var(--ok);border-color:var(--ok);color:var(--abyss)}
+.mv-t{flex:1;min-width:0}
+.mv-n{font-size:14px;font-weight:700;line-height:1.35}
+.mv-s{font-size:11px;color:var(--mute);margin-top:1px}
+.mv-c{font-size:11px;color:var(--mute);flex-shrink:0}
+.mv-b{display:none;padding:0 13px 13px;border-top:1px solid var(--line)}
+.mv.open .mv-b{display:block}
+
+.st{
+  display:grid;grid-template-columns:30px 1fr 1fr 46px 30px;
+  gap:6px;align-items:center;padding:7px 0;
+  border-bottom:1px solid rgba(29,69,87,.5);
+}
+.st:last-of-type{border-bottom:none}
+.st-n{font-size:11px;color:var(--mute);font-weight:700}
+.st-p{font-size:12.5px;color:var(--ice);font-variant-numeric:tabular-nums}
+.st-r{font-size:11.5px;color:var(--mute)}
+.st input{
+  padding:5px;font-size:12.5px;text-align:center;
+  background:var(--abyss);border:1px solid var(--line);border-radius:6px;
+}
+.st-c{
+  width:26px;height:26px;border-radius:6px;cursor:pointer;
+  background:var(--abyss);border:1px solid var(--line);
+  color:var(--mute);font-size:13px;font-family:inherit;padding:0;
+}
+.st-c.on{background:var(--ok);border-color:var(--ok);color:var(--abyss)}
+.st-hd{
+  display:grid;grid-template-columns:30px 1fr 1fr 46px 30px;
+  gap:6px;font-size:9.5px;color:var(--mute);letter-spacing:.8px;
+  padding:9px 0 5px;font-weight:700;
+}
+.cue{
+  font-size:11.5px;color:var(--mute);line-height:1.55;
+  padding:5px 0 0 14px;position:relative;
+}
+.cue::before{content:"▸";position:absolute;left:0;color:var(--alt)}
+.cues{margin-top:9px;padding-top:9px;border-top:1px solid rgba(29,69,87,.5)}
+
+.wk{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:11px 0;border-bottom:1px solid var(--line);
+}
+.wk:last-child{border-bottom:none}
+.wk-l{display:flex;align-items:center;gap:11px}
+.wk-n{
+  font-size:11px;color:var(--mute);width:38px;
+  font-variant-numeric:tabular-nums;font-weight:600;
+}
+.chk{display:flex;gap:6px}
+.chk button{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--abyss);border:1px solid var(--line);
+  color:var(--mute);cursor:pointer;font-size:12px;font-weight:700;
+  font-family:inherit;
+}
+.chk button.done{background:var(--ok);border-color:var(--ok);color:var(--abyss)}
+.phase{
+  font-size:10.5px;color:var(--mute);letter-spacing:1px;
+  padding:5px 0 8px;font-weight:600;
+}
+
+/* ---- 歷史 ---- */
+.log{
+  background:var(--deep);border:1px solid var(--line);
+  border-radius:10px;padding:12px;margin-bottom:9px;
+}
+.log-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.log-d{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.tag{
+  font-size:10px;padding:2.5px 8px;border-radius:12px;
+  letter-spacing:.5px;font-weight:700;
+}
+.tag.gym{background:rgba(212,160,23,.18);color:var(--alt)}
+.tag.home{background:rgba(127,163,180,.18);color:var(--mute)}
+.tag.run{background:rgba(95,184,122,.18);color:var(--ok)}
+.tag.dive{background:rgba(42,157,143,.2);color:var(--sea)}
+.tag.hike{background:rgba(224,122,95,.18);color:var(--warn)}
+.log-b{font-size:12.5px;color:var(--mute);line-height:1.65}
+.log-x{
+  background:none;border:none;color:var(--mute);
+  cursor:pointer;font-size:16px;font-family:inherit;
+}
+.log-x:hover{color:var(--warn)}
+
+.empty{
+  text-align:center;padding:34px 18px;color:var(--mute);font-size:13px;
+}
+.empty b{display:block;color:var(--ice);margin-bottom:5px;font-size:14px}
+
+/* ---- 匯出 ---- */
+.exp{
+  background:var(--abyss);border:1px solid var(--line);
+  border-radius:9px;padding:12px;font-size:11.5px;
+  white-space:pre-wrap;max-height:300px;overflow:auto;
+  font-family:ui-monospace,"SF Mono",Menlo,monospace;
+  color:var(--mute);line-height:1.6;margin-bottom:11px;
+}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+.stat{
+  background:var(--deep);border:1px solid var(--line);
+  border-radius:10px;padding:12px 9px;text-align:center;
+}
+.stat .v{font-size:21px;font-weight:700;color:var(--alt);font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .k{font-size:10px;color:var(--mute);letter-spacing:.8px;margin-top:2px}
+
+.toast{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--ok);color:var(--abyss);padding:11px 22px;
+  border-radius:22px;font-size:13.5px;font-weight:700;
+  transition:transform .28s cubic-bezier(.2,.9,.3,1.2);z-index:99;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media(max-width:420px){
+  .ex,.exhead{grid-template-columns:1fr 54px 44px 44px 26px}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <svg class="alt-line" viewBox="0 0 760 90" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,78 L90,72 L150,66 L210,52 L260,58 L320,34 L380,12 L440,30 L500,22 L560,46 L620,40 L690,62 L760,56"
+          fill="none" stroke="#d4a017" stroke-width="1.5"/>
+    <path d="M0,88 L120,84 L240,86 L360,82 L480,85 L600,83 L760,86"
+          fill="none" stroke="#2a9d8f" stroke-width="1" stroke-dasharray="3 4"/>
+  </svg>
+  <div class="hd-top">
+    <div>
+      <h1>訓練紀錄 · <span id="goalName">島峰計畫</span></h1>
+      <div class="tagline">審慎評估 · 活著回來</div>
+    </div>
+    <div class="countdown">
+      <div class="n" id="days">—</div>
+      <div class="l" id="goalLabel">天 → 島峰</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="on" data-t="rec">記錄</button>
+  <button data-t="plan">課表</button>
+  <button data-t="hist">歷史</button>
+  <button data-t="exp">匯出</button>
+  <button data-t="set">設定</button>
+</nav>
+
+<!-- ============ 記錄 ============ -->
+<section id="rec" class="on">
+
+  <div class="card">
+    <h2>今天練什麼</h2>
+    <div class="venue" id="type">
+      <button class="on" data-v="gym">重訓</button>
+      <button data-v="run">有氧</button>
+      <button data-v="dive">潛水</button>
+      <button data-v="hike">郊山</button>
+    </div>
+    <div class="field">
+      <label>日期</label>
+      <input type="date" id="date">
+    </div>
+  </div>
+
+  <!-- 重訓 -->
+  <div id="p-gym">
+    <div class="card">
+      <h2>地點</h2>
+      <div class="venue" id="venue"></div>
+      <div class="hint" id="vhint">商用器械行程完整，重量數字比家裡低是正常的，別對比。</div>
+    </div>
+
+    <div class="card">
+      <h2>訓練部位</h2>
+      <div class="parts" id="parts"></div>
+      <div class="exhead">
+        <span>動作</span><span>重量kg</span><span>次數</span><span>組數</span><span></span>
+      </div>
+      <div class="exlist" id="exlist"></div>
+      <button class="ghost" id="addex" style="width:100%;margin-top:8px">+ 加一個動作</button>
+    </div>
+  </div>
+
+  <!-- 有氧 -->
+  <div id="p-run" style="display:none">
+    <div class="card">
+      <h2>有氧數據</h2>
+      <div class="hint">照 Garmin 上的數字填。截圖也一起丟到對話給教練看更好。</div>
+      <div class="field">
+        <label>類型</label>
+        <select id="r-kind">
+          <option>路跑</option>
+          <option>越野跑</option>
+          <option>健行／快走</option>
+          <option>其他有氧</option>
+        </select>
+      </div>
+      <div class="row field">
+        <div><label>距離 km</label><input type="number" id="r-km" step="0.01" placeholder="10.71"></div>
+        <div><label>總時間 分鐘</label><input type="number" id="r-min" placeholder="78"></div>
+      </div>
+      <div class="row field">
+        <div><label>平均心率</label><input type="number" id="r-hr" placeholder="142"></div>
+        <div><label>最大心率</label><input type="number" id="r-hrmax" placeholder="180"></div>
+      </div>
+      <div class="row field">
+        <div><label>平均配速 /km</label><input type="text" id="r-pace" placeholder="7:21"></div>
+        <div><label>平均步頻 spm</label><input type="number" id="r-cad" placeholder="141"></div>
+      </div>
+      <div class="row field">
+        <div><label>跑步時間 分</label><input type="number" id="r-runmin" placeholder="48"></div>
+        <div><label>步行時間 分</label><input type="number" id="r-walkmin" placeholder="30"></div>
+      </div>
+      <div class="row field">
+        <div><label>總爬升 m</label><input type="number" id="r-gain" placeholder="30"></div>
+        <div><label>心率上限設定</label><input type="number" id="r-cap" placeholder="150"></div>
+      </div>
+      <div class="field">
+        <label>備註</label>
+        <input type="text" id="r-note" placeholder="天氣、路線、跑起來的感覺">
+      </div>
+    </div>
+  </div>
+
+  <!-- 潛水 -->
+  <div id="p-dive" style="display:none">
+    <div class="card">
+      <h2>潛水</h2>
+      <div class="hint">只記幾潛，用來抓體力消耗，避免跟高強度訓練撞在一起。</div>
+      <div class="row field">
+        <div><label>潛水次數</label><input type="number" id="d-n" placeholder="2"></div>
+        <div><label>身分</label>
+          <select id="d-role">
+            <option>教學帶課</option>
+            <option>自己潛</option>
+            <option>自由潛水</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 郊山 -->
+  <div id="p-hike" style="display:none">
+    <div class="card">
+      <h2>郊山</h2>
+      <div class="row field">
+        <div><label>路線</label><input type="text" id="h-name" placeholder="小百岳／郊山名稱"></div>
+      </div>
+      <div class="row field">
+        <div><label>時間 分鐘</label><input type="number" id="h-min" placeholder="120"></div>
+        <div><label>背負重量 kg</label><input type="number" id="h-pack" placeholder="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>身體回饋</h2>
+    <div class="field">
+      <label>感受 · 哪裡不舒服 · 代償</label>
+      <textarea id="feel" placeholder="例：下拉第三組後半肩膀開始代償；腰沒有不適"></textarea>
+    </div>
+    <button class="act" id="save">儲存這次訓練</button>
+  </div>
+</section>
+
+<!-- ============ 課表 ============ -->
+<section id="plan">
+  <div class="card">
+    <h2>今天照哪一天練</h2>
+    <div class="venue" id="dayPick">
+      <button class="on" data-d="A">A 日 · 推 + 腿前側</button>
+      <button data-d="B">B 日 · 拉 + 腿後側</button>
+    </div>
+    <div class="hint" id="warmHint"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <span style="font-size:12px;color:var(--mute)" id="progTxt">尚未開始</span>
+      <button class="ghost" id="resetDay" style="flex:0 0 auto;padding:6px 12px">清空今天</button>
+    </div>
+    <div class="bar"><div class="bar-f" id="barFill"></div></div>
+  </div>
+
+  <div id="planBody"></div>
+
+  <div class="card">
+    <h2>存成今天的紀錄</h2>
+    <div class="field">
+      <label>地點</label>
+      <div class="venue" id="planVenue"></div>
+    </div>
+    <div class="field">
+      <label>身體回饋</label>
+      <textarea id="planFeel" placeholder="例：下拉第三組後半肩膀代償；腰沒有不適"></textarea>
+    </div>
+    <button class="act" id="planSave">存成訓練紀錄</button>
+  </div>
+
+  <div class="card">
+    <h2>加重規則</h2>
+    <div class="log-b">
+      <b style="color:var(--ice)">金字塔遞增</b><br>
+      第 1 組熱身用起始重量 60%，第 2 組回到起始，第 3 組 +10%，第 4 組再 +10% 做到最後 2 下費力。<br><br>
+      <b style="color:var(--ice)">什麼時候調整起始重量</b><br>
+      連續兩次第 4 組都輕鬆做完次數上限且姿勢沒跑掉 → 起始 +5~10%<br>
+      第 4 組做不到次數下限、或姿勢開始代償 → 起始 −10%<br>
+      其餘維持不動<br><br>
+      <b style="color:var(--ice)">節奏</b><br>
+      放下去數 2–3 秒，收縮位置停 1 秒。組間休息照表計時。<br><br>
+      <b style="color:var(--ice)">第 7 週起</b><br>
+      正式組次數改 8–12 下、重量加 15–20%；熱身組維持 15 下；核心不加重。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>12 週進度</h2>
+    <div class="hint">上面存檔後會自動打勾，也可以手動點。</div>
+    <div id="weeks"></div>
+  </div>
+</section>
+
+<!-- ============ 歷史 ============ -->
+<section id="hist">
+  <div class="stats">
+    <div class="stat"><div class="v" id="s-week">0</div><div class="k">本週次數</div></div>
+    <div class="stat"><div class="v" id="s-total">0</div><div class="k">累計紀錄</div></div>
+    <div class="stat"><div class="v" id="s-streak">0</div><div class="k">本月次數</div></div>
+  </div>
+  <div id="logs"></div>
+</section>
+
+<!-- ============ 匯出 ============ -->
+<section id="exp">
+  <div class="card">
+    <h2>交給教練分析</h2>
+    <div class="hint">複製後貼到對話裡，教練就能撈這些資料做每週分析與課表調整。</div>
+    <div class="field">
+      <label>範圍</label>
+      <select id="range">
+        <option value="7">最近 7 天</option>
+        <option value="14">最近 14 天</option>
+        <option value="30">最近 30 天</option>
+        <option value="9999">全部</option>
+      </select>
+    </div>
+    <div class="exp" id="preview">選擇範圍後會顯示內容</div>
+    <button class="act" id="copy">複製全部</button>
+    <button class="ghost" id="csv" style="width:100%;margin-top:8px">下載 CSV 試算表</button>
+  </div>
+</section>
+
+<!-- ============ 設定 ============ -->
+<section id="set">
+  <div class="card">
+    <h2>目標</h2>
+    <div class="hint">目標換了就改這裡，首頁倒數會跟著變。</div>
+    <div class="field">
+      <label>目標名稱</label>
+      <input type="text" id="g-name" placeholder="島峰計畫">
+    </div>
+    <div class="field">
+      <label>目標日期</label>
+      <input type="date" id="g-date">
+    </div>
+    <button class="act" id="g-save">儲存目標</button>
+  </div>
+
+  <div class="card">
+    <h2>訓練地點</h2>
+    <div class="hint">不同健身房器械阻力不同，分開記錄才比較得出真實進步。</div>
+    <div id="v-list"></div>
+    <div class="row" style="margin-top:10px">
+      <input type="text" id="v-new" placeholder="新增地點，例如 健身工廠">
+      <button class="ghost" id="v-add" style="flex:0 0 80px">新增</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>資料</h2>
+    <div class="hint">紀錄存在這個瀏覽器裡。換手機或清除瀏覽器資料會消失，記得定期下載 CSV 備份。</div>
+    <button class="ghost" id="wipe" style="width:100%;color:var(--warn);border-color:var(--warn)">清除所有紀錄</button>
+  </div>
+</section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PROGRAM={
+A:{title:"推 + 腿前側",warm:"滑步機或飛輪 8 分鐘，心率到微喘。接著肩關節繞環 10 圈、徒手深蹲 10 下。",
+groups:[
+ {g:"胸（三個角度）",items:[
+  {n:"坐姿推胸機",t:"中胸為主",base:30,
+   sets:[["18 kg","15 下 熱身","45秒"],["30 kg","15 下","60秒"],["33 kg","12–13 下","75秒"],["36 kg","12 下 力竭","90秒"]],
+   cues:["肩胛先向下沉、往後夾住椅背，全程不要讓肩膀往前頂。","推到頂手肘不完全鎖死，保持胸部張力。","回程放慢 3 秒，回到胸線高度就再推。"]},
+  {n:"上斜推胸機",t:"上胸（椅背調高也可）",base:22,
+   sets:[["14 kg","15 下 熱身","45秒"],["22 kg","15 下","60秒"],["24 kg","12–13 下","75秒"],["27 kg","12 下","75秒"]],
+   cues:["上胸是體態最有感的區塊，穿衣服挺不挺看這裡。","沒有上斜機就把椅子調高一格、軌跡略往上。"]},
+  {n:"夾胸 Pectoral Fly",t:"中胸內側收縮",base:18,
+   sets:[["11 kg","15 下 熱身","45秒"],["18 kg","15 下","60秒"],["20 kg","15 下","60秒"],["22 kg","12–15 下","60秒"]],
+   cues:["手肘微彎固定，用胸把手臂夾在一起，不是用手推。","夾到中間停 1 秒擠壓，張開到有拉伸感就好，不要過度後張。"]}
+ ]},
+ {g:"肩",items:[
+  {n:"坐姿肩推機",t:"前束、中束",base:27,
+   sets:[["16 kg","15 下 熱身","45秒"],["27 kg","15 下","75秒"],["30 kg","12 下","75秒"],["33 kg","10–12 下","90秒"]],
+   cues:["坐穩、下背貼椅背，不要挺腰用胸推。","推到頂不鎖死，放到耳朵高度即可。"]},
+  {n:"側平舉 Lateral Raise",t:"中束 · 已刻意降重",base:12,
+   sets:[["8 kg","15 下 熱身","40秒"],["12 kg","15 下","50秒"],["13 kg","15 下","50秒"],["15 kg","12–15 下","60秒"]],
+   cues:["從 12kg 重來不是退步：23kg 很可能是斜方肌聳起來代償。","舉到手肘與肩同高就停，肩膀往下壓、不聳。","脖子不緊、三角肌中束在燒，才是對的。"]}
+ ]},
+ {g:"三頭",items:[
+  {n:"三頭下壓",t:"三頭外側頭",base:20,
+   sets:[["12 kg","15 下 熱身","40秒"],["20 kg","15 下","50秒"],["22 kg","12–15 下","60秒"],["24 kg","12 下","60秒"]],
+   cues:["手肘夾緊身體兩側固定，只有前臂在動。","壓到底完全伸直停 1 秒，慢慢回到手肘 90 度。"]}
+ ]},
+ {g:"腿前側",items:[
+  {n:"腿推機 Leg Press",t:"股四頭、臀",base:29,
+   sets:[["18 kg","15 下 熱身","60秒"],["29 kg","15 下","75秒"],["32 kg","12–15 下","90秒"],["35 kg","12 下","90秒"]],
+   cues:["腳掌與肩同寬、放踏板中央偏上；下放到膝蓋約 90 度。","推到頂不鎖死；下放數 3 秒，這是最有效的部分。","家裡那台行程短，數字不能跟這裡比，維持 3–4 組。"]},
+  {n:"腿伸機 Leg Extension",t:"股四頭孤立",base:25,
+   sets:[["15 kg","15 下 熱身","45秒"],["25 kg","15 下","60秒"],["28 kg","12–15 下","60秒"],["30 kg","12 下","60秒"]],
+   cues:["頂端完全伸直停 1 秒把大腿前側擠緊，這秒是重點。","放下來數 3 秒，不要讓配重片砸下去。"]}
+ ]},
+ {g:"核心",items:[
+  {n:"捲腹機",t:"腹直肌 · 已刻意降重",base:16,
+   sets:[["16 kg","15 下","45秒"],["18 kg","15 下","45秒"],["20 kg","12–15 下","60秒"]],
+   cues:["32kg 讓你痙攣，從 16kg 重新建立感覺。核心練控制不是重量。","用腹部把胸廓往骨盆捲，不要用脖子拉。","只做 3 組，有抽筋徵兆立刻停。"]},
+  {n:"懸吊抬腿",t:"下腹 · 徒手",base:0,
+   sets:[["自身體重","12 下","45秒"],["自身體重","12 下","45秒"]],
+   cues:["背貼靠墊，用下腹把骨盆微捲再抬腿，不是單純甩腿。","對背重裝的軀幹穩定最有幫助，品質優先。"]}
+ ]}
+]},
+
+B:{title:"拉 + 腿後側",warm:"滑步機或飛輪 8 分鐘。接著肩胛下沉 15 次、臀橋 15 下。",
+groups:[
+ {g:"背（垂直拉 + 水平拉）",items:[
+  {n:"滑輪下拉 Lat Pulldown",t:"背闊肌寬度",base:30,
+   sets:[["18 kg","15 下 熱身","45秒"],["30 kg","15 下","75秒"],["33 kg","12–13 下","75秒"],["36 kg","12 下","90秒"]],
+   cues:["先把肩胛往下沉，再用手肘往下往後夾，手只是掛鉤。","拉到鎖骨附近、胸口微挺向把手，停 1 秒感受背闊。","第 4 組後半肩膀開始代償就停，不要硬湊次數。"]},
+  {n:"坐姿划船 Seated Row",t:"中背厚度",base:30,
+   sets:[["18 kg","15 下 熱身","45秒"],["30 kg","15 下","75秒"],["33 kg","12–15 下","75秒"],["36 kg","12 下","90秒"]],
+   cues:["補你最缺的水平拉。只練下拉不練划船，背會薄。","胸挺起、腰不駝；拉到腹部、肩胛夾緊停 1 秒。","身體不要前後搖晃借力。"]},
+  {n:"輔助引體向上",t:"背闊 · 數字越小越難",base:23,
+   sets:[["輔助 27 kg","10 下 熱身","60秒"],["輔助 23 kg","10 下","90秒"],["輔助 23 kg","8–10 下","90秒"],["輔助 20 kg","6–8 下","90秒"]],
+   cues:["配重是幫你分擔體重，所以這裡是遞減，跟其他動作相反。","對技術攀登的拉力最有轉移性，值得認真練。","拉到下巴過槓，放下來數 3 秒。"]}
+ ]},
+ {g:"二頭",items:[
+  {n:"二頭彎舉",t:"肱二頭",base:15,
+   sets:[["9 kg","15 下 熱身","40秒"],["15 kg","15 下","50秒"],["17 kg","12–15 下","60秒"],["19 kg","12 下","60秒"]],
+   cues:["手肘固定在身體兩側，不要往前抬、不要晃動借力。","彎到頂停 1 秒，放下來數 3 秒。"]}
+ ]},
+ {g:"腿後側與臀",items:[
+  {n:"腿彎舉機 Leg Curl",t:"腿後腱",base:22,
+   sets:[["13 kg","15 下 熱身","45秒"],["22 kg","15 下","60秒"],["25 kg","12–15 下","75秒"],["27 kg","12 下","75秒"]],
+   cues:["腿後側對下坡制動、保護膝蓋很關鍵，登山特別需要。","彎到底停 1 秒擠壓，放回去數 3 秒，臀部不要翹起。"]},
+  {n:"坐姿腿外展",t:"臀中肌",base:30,
+   sets:[["20 kg","15 下 熱身","40秒"],["30 kg","15 下","50秒"],["33 kg","15 下","60秒"]],
+   cues:["臀中肌負責不平地形的骨盆穩定，對登山實用。","打開到底停 1 秒，收回慢慢控制。"]},
+  {n:"坐姿腿內收",t:"內收肌",base:30,
+   sets:[["20 kg","15 下 熱身","40秒"],["30 kg","15 下","50秒"],["33 kg","15 下","60秒"]],
+   cues:["與外展成對練，避免骨盆兩側肌力失衡。"]},
+  {n:"小腿提踵 Calf Raise",t:"腓腸肌／比目魚肌",base:59,
+   sets:[["40 kg","15 下 熱身","40秒"],["59 kg","15 下","50秒"],["65 kg","15 下","50秒"],["70 kg","12–15 下","60秒"]],
+   cues:["腳跟沉到最低、頂到最高停 1 秒，把行程做滿才有效。","小腿耐力直接對應長時間爬升，對島峰很實在。","站姿練腓腸肌、坐姿練比目魚肌，交替更完整。"]}
+ ]},
+ {g:"核心",items:[
+  {n:"旋轉軀幹 Rotary Torso",t:"腹斜肌",base:18,
+   sets:[["18 kg","左右各 15 下","45秒"],["20 kg","左右各 15 下","45秒"],["20 kg","左右各 12–15 下","60秒"]],
+   cues:["骨盆與大腿被護墊固定，用腹斜肌帶動胸廓轉，腰椎不要硬扭。","轉到底控制住慢慢回中間，不要讓配重片甩回去。","下背有緊、痛、卡就立刻降重或停。"]}
+ ]}
+]}
+};
+
+const PARTS=["胸","背","肩","二頭","三頭","大腿前側","大腿後側","臀","小腿","核心","腹斜肌"];
+const KEY="train_log_v1", PKEY="plan_prog_v1", SKEY="train_set_v1";
+
+let logs=[], prog={}, type="gym", venue="", picked=new Set();
+let cfg={goal:"島峰計畫",date:"2027-05-01",venues:["World Gym","家裡陽台"]};
+
+// ---- 啟動 ----
+try{ logs=JSON.parse(localStorage.getItem(KEY))||[] }catch(e){ logs=[] }
+try{ prog=JSON.parse(localStorage.getItem(PKEY))||{} }catch(e){ prog={} }
+try{
+  const s=JSON.parse(localStorage.getItem(SKEY));
+  if(s) cfg=Object.assign(cfg,s);
+}catch(e){}
+venue=cfg.venues[0]||"";
+
+function applyGoal(){
+  document.getElementById("goalName").textContent=cfg.goal;
+  const t=new Date(cfg.date);
+  const d=Math.ceil((t-new Date())/864e5);
+  document.getElementById("days").textContent=(isFinite(d)&&d>0)?d:"—";
+  document.getElementById("goalLabel").textContent="天 → "+cfg.goal;
+}
+
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(logs));
+    localStorage.setItem(PKEY,JSON.stringify(prog));
+    localStorage.setItem(SKEY,JSON.stringify(cfg));
+  }catch(e){ toast("儲存空間已滿，請先刪除舊紀錄") }
+}
+function toast(m){
+  const t=document.getElementById("toast");
+  t.textContent=m; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2100);
+}
+
+// ---- 分頁 ----
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll("section").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    document.getElementById(b.dataset.t).classList.add("on");
+    if(b.dataset.t==="hist") renderLogs();
+    if(b.dataset.t==="exp") renderExport();
+  };
+});
+
+// ---- 運動類型 ----
+document.querySelectorAll("#type button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("#type button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); type=b.dataset.v;
+    ["gym","run","dive","hike"].forEach(t=>{
+      document.getElementById("p-"+t).style.display = t===type?"block":"none";
+    });
+  };
+});
+
+// ---- 地點（動態） ----
+function isHome(v){ return /家|陽台|home/i.test(v) }
+function renderVenues(){
+  const box=document.getElementById("venue");
+  box.innerHTML="";
+  if(!cfg.venues.length){
+    box.innerHTML='<div style="font-size:12px;color:var(--mute);padding:8px">請先到「設定」新增訓練地點</div>';
+    return;
+  }
+  if(!cfg.venues.includes(venue)) venue=cfg.venues[0];
+  cfg.venues.forEach(v=>{
+    const b=document.createElement("button");
+    b.textContent=v;
+    if(v===venue) b.classList.add("on");
+    b.onclick=()=>{
+      venue=v;
+      renderVenues();
+      document.getElementById("vhint").textContent = isHome(v)
+        ? "家裡行程短、力臂虛，重點放慢速度與底部停頓，不要靠加重補償。"
+        : "不同健身房器械阻力不同，數字只跟同一個場地比才有意義。";
+    };
+    box.appendChild(b);
+  });
+}
+renderVenues();
+
+// ---- 設定：目標 ----
+document.getElementById("g-name").value=cfg.goal;
+document.getElementById("g-date").value=cfg.date;
+document.getElementById("g-save").onclick=()=>{
+  const n=document.getElementById("g-name").value.trim();
+  const d=document.getElementById("g-date").value;
+  if(!n){ toast("目標名稱不能空白"); return }
+  cfg.goal=n; if(d) cfg.date=d;
+  save(); applyGoal(); toast("目標已更新 ✓");
+};
+
+// ---- 設定：地點清單 ----
+function renderVenueList(){
+  const box=document.getElementById("v-list");
+  box.innerHTML="";
+  if(!cfg.venues.length){
+    box.innerHTML='<div style="font-size:12px;color:var(--mute)">還沒有地點，在下面新增。</div>';
+    return;
+  }
+  cfg.venues.forEach((v,i)=>{
+    const row=document.createElement("div");
+    row.style.cssText="display:flex;gap:8px;align-items:center;margin-bottom:8px";
+    row.innerHTML=`<input value="${v.replace(/"/g,'&quot;')}" style="flex:1">
+      <button class="ghost" style="flex:0 0 44px;color:var(--warn);border-color:var(--line)">刪</button>`;
+    const inp=row.querySelector("input");
+    inp.onchange=()=>{
+      const nv=inp.value.trim();
+      if(!nv){ inp.value=cfg.venues[i]; return }
+      const old=cfg.venues[i];
+      cfg.venues[i]=nv;
+      if(venue===old) venue=nv;
+      save(); renderVenues();
+      if(typeof renderPlanVenue==="function") renderPlanVenue();
+      toast("地點已更新 ✓");
+    };
+    row.querySelector("button").onclick=()=>{
+      if(!confirm(`刪除「${v}」？已存的紀錄不受影響。`)) return;
+      cfg.venues.splice(i,1);
+      save(); renderVenueList(); renderVenues();
+      if(typeof renderPlanVenue==="function") renderPlanVenue();
+    };
+    box.appendChild(row);
+  });
+}
+document.getElementById("v-add").onclick=()=>{
+  const el=document.getElementById("v-new");
+  const v=el.value.trim();
+  if(!v){ toast("請輸入地點名稱"); return }
+  if(cfg.venues.includes(v)){ toast("這個地點已經有了"); return }
+  cfg.venues.push(v); el.value="";
+  save(); renderVenueList(); renderVenues();
+  if(typeof renderPlanVenue==="function") renderPlanVenue();
+  toast("已新增 ✓");
+};
+renderVenueList();
+
+document.getElementById("wipe").onclick=()=>{
+  if(!confirm("確定清除所有訓練紀錄？這個動作無法復原，建議先下載 CSV 備份。")) return;
+  if(!confirm("再確認一次：所有紀錄都會刪除。")) return;
+  logs=[]; save(); renderLogs(); toast("已清除");
+};
+
+// ---- 部位 ----
+const pw=document.getElementById("parts");
+PARTS.forEach(p=>{
+  const b=document.createElement("button");
+  b.textContent=p;
+  b.onclick=()=>{
+    if(picked.has(p)){ picked.delete(p); b.classList.remove("on") }
+    else{ picked.add(p); b.classList.add("on"); if(!document.querySelector("#exlist .ex")) addEx() }
+  };
+  pw.appendChild(b);
+});
+
+// ---- 動作列 ----
+function addEx(){
+  const r=document.createElement("div");
+  r.className="ex";
+  r.innerHTML=`<input placeholder="動作名稱"><input type="number" placeholder="kg"><input type="number" placeholder="次"><input type="number" placeholder="組"><button class="del" aria-label="刪除">×</button>`;
+  r.querySelector(".del").onclick=()=>r.remove();
+  document.getElementById("exlist").appendChild(r);
+}
+document.getElementById("addex").onclick=addEx;
+addEx();
+
+// ---- 儲存 ----
+document.getElementById("save").onclick=()=>{
+  const date=document.getElementById("date").value;
+  if(!date){ toast("請選日期"); return }
+  const feel=document.getElementById("feel").value.trim();
+  let e={date,type,feel,id:Date.now()};
+
+  if(type==="gym"){
+    const ex=[...document.querySelectorAll("#exlist .ex")].map(r=>{
+      const i=r.querySelectorAll("input");
+      return {name:i[0].value.trim(),kg:i[1].value,rep:i[2].value,set:i[3].value};
+    }).filter(x=>x.name);
+    if(!ex.length){ toast("至少填一個動作"); return }
+    e.venue=venue; e.parts=[...picked]; e.ex=ex;
+  }
+  if(type==="run"){
+    e.kind=document.getElementById("r-kind").value;
+    e.km=document.getElementById("r-km").value;
+    e.min=document.getElementById("r-min").value;
+    e.hr=document.getElementById("r-hr").value;
+    e.hrmax=document.getElementById("r-hrmax").value;
+    e.pace=document.getElementById("r-pace").value.trim();
+    e.cad=document.getElementById("r-cad").value;
+    e.runmin=document.getElementById("r-runmin").value;
+    e.walkmin=document.getElementById("r-walkmin").value;
+    e.gain=document.getElementById("r-gain").value;
+    e.cap=document.getElementById("r-cap").value;
+    e.note=document.getElementById("r-note").value.trim();
+    if(!e.km&&!e.min){ toast("填一下距離或時間"); return }
+  }
+  if(type==="dive"){
+    e.dives=document.getElementById("d-n").value;
+    e.role=document.getElementById("d-role").value;
+    if(!e.dives){ toast("填一下幾潛"); return }
+  }
+  if(type==="hike"){
+    e.name=document.getElementById("h-name").value.trim();
+    e.min=document.getElementById("h-min").value;
+    e.pack=document.getElementById("h-pack").value;
+    if(!e.min){ toast("填一下時間"); return }
+  }
+
+  logs.unshift(e); save(); toast("已儲存 ✓");
+
+  document.querySelectorAll("#exlist .ex").forEach(r=>r.remove()); addEx();
+  picked.clear();
+  document.querySelectorAll("#parts button").forEach(b=>b.classList.remove("on"));
+  ["feel","r-km","r-min","r-hr","r-hrmax","r-pace","r-cad","r-runmin","r-walkmin",
+   "r-gain","r-cap","r-note","d-n","h-name","h-min","h-pack"]
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value="" });
+};
+
+// ---- 課表執行 ----
+const DKEY="plan_day_v1";
+let curDay="A", dayState={}, planVenue=cfg.venues[0]||"";
+try{ dayState=JSON.parse(localStorage.getItem(DKEY))||{} }catch(e){ dayState={} }
+
+function saveDay(){ try{ localStorage.setItem(DKEY,JSON.stringify(dayState)) }catch(e){} }
+
+function renderPlanVenue(){
+  const box=document.getElementById("planVenue");
+  box.innerHTML="";
+  if(!cfg.venues.includes(planVenue)) planVenue=cfg.venues[0]||"";
+  cfg.venues.forEach(v=>{
+    const b=document.createElement("button");
+    b.textContent=v;
+    if(v===planVenue) b.classList.add("on");
+    b.onclick=()=>{ planVenue=v; renderPlanVenue() };
+    box.appendChild(b);
+  });
+}
+
+function planKey(di,si){ return `${curDay}_${di}_${si}` }
+
+function updateProgress(){
+  const day=PROGRAM[curDay];
+  let total=0,done=0;
+  day.groups.forEach(g=>g.items.forEach(it=>{
+    it.sets.forEach((_,si)=>{ total++; });
+  }));
+  Object.keys(dayState).forEach(k=>{ if(k.startsWith(curDay+"_")&&dayState[k]&&dayState[k].done) done++ });
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById("barFill").style.width=pct+"%";
+  document.getElementById("progTxt").textContent=
+    done? `已完成 ${done} / ${total} 組（${pct}%）` : "尚未開始";
+}
+
+function renderPlan(){
+  const day=PROGRAM[curDay];
+  document.getElementById("warmHint").textContent="熱身："+day.warm;
+  const box=document.getElementById("planBody");
+  box.innerHTML="";
+  let idx=0;
+  day.groups.forEach(gr=>{
+    const gh=document.createElement("div");
+    gh.className="grp"; gh.textContent=gr.g;
+    box.appendChild(gh);
+    gr.items.forEach(it=>{
+      const di=idx++;
+      const mv=document.createElement("div");
+      mv.className="mv";
+      const allDone=it.sets.every((_,si)=>dayState[planKey(di,si)]&&dayState[planKey(di,si)].done);
+      if(allDone) mv.classList.add("done");
+      mv.innerHTML=`
+        <div class="mv-h">
+          <div class="mv-num">${di+1}</div>
+          <div class="mv-t"><div class="mv-n">${it.n}</div><div class="mv-s">${it.t}</div></div>
+          <div class="mv-c">${it.sets.length} 組 ▾</div>
+        </div>
+        <div class="mv-b">
+          <div class="st-hd"><span></span><span>課表</span><span>次數</span><span>實際kg</span><span></span></div>
+          <div class="st-list"></div>
+          <div class="cues">${it.cues.map(c=>`<div class="cue">${c}</div>`).join("")}</div>
+        </div>`;
+      const head=mv.querySelector(".mv-h");
+      head.onclick=()=>{
+        mv.classList.toggle("open");
+        mv.querySelector(".mv-c").textContent=
+          it.sets.length+" 組 "+(mv.classList.contains("open")?"▴":"▾");
+      };
+      const list=mv.querySelector(".st-list");
+      it.sets.forEach((s,si)=>{
+        const k=planKey(di,si);
+        const st=dayState[k]||{};
+        const row=document.createElement("div");
+        row.className="st";
+        row.innerHTML=`
+          <span class="st-n">${si+1}</span>
+          <span class="st-p">${s[0]}</span>
+          <span class="st-r">${s[1]}<br><span style="opacity:.7">休 ${s[2]}</span></span>
+          <input type="number" placeholder="kg" value="${st.kg??""}">
+          <button class="st-c ${st.done?"on":""}" aria-label="完成這組">✓</button>`;
+        const inp=row.querySelector("input");
+        const btn=row.querySelector("button");
+        inp.onchange=()=>{
+          dayState[k]=Object.assign({},dayState[k],{kg:inp.value});
+          saveDay();
+        };
+        btn.onclick=()=>{
+          const cur=dayState[k]||{};
+          cur.done=!cur.done;
+          if(cur.done&&!cur.kg){
+            const m=String(s[0]).match(/([\d.]+)/);
+            if(m){ cur.kg=m[1]; inp.value=m[1] }
+          }
+          dayState[k]=cur; saveDay();
+          btn.classList.toggle("on",!!cur.done);
+          const all=it.sets.every((_,x)=>dayState[planKey(di,x)]&&dayState[planKey(di,x)].done);
+          mv.classList.toggle("done",all);
+          updateProgress();
+        };
+        list.appendChild(row);
+      });
+      box.appendChild(mv);
+    });
+  });
+  updateProgress();
+}
+
+document.querySelectorAll("#dayPick button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("#dayPick button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); curDay=b.dataset.d; renderPlan();
+  };
+});
+
+document.getElementById("resetDay").onclick=()=>{
+  if(!confirm(`清空 ${curDay} 日今天已勾選的內容？`)) return;
+  Object.keys(dayState).forEach(k=>{ if(k.startsWith(curDay+"_")) delete dayState[k] });
+  saveDay(); renderPlan();
+};
+
+document.getElementById("planSave").onclick=()=>{
+  const day=PROGRAM[curDay];
+  let ex=[], parts=new Set(), idx=0;
+  day.groups.forEach(gr=>gr.items.forEach(it=>{
+    const di=idx++;
+    let sets=0, kgs=[], reps=[];
+    it.sets.forEach((s,si)=>{
+      const st=dayState[planKey(di,si)];
+      if(st&&st.done){ sets++; if(st.kg) kgs.push(st.kg); reps.push(s[1]) }
+    });
+    if(sets){
+      parts.add(gr.g.replace(/（.*/,""));
+      const kg = kgs.length? (kgs.length>1&&new Set(kgs).size>1 ? kgs.join("/") : kgs[0]) : "";
+      ex.push({name:it.n,kg,rep:(reps[0]||"").replace(/[^\d–\-]/g,"")||"",set:String(sets)});
+    }
+  }));
+  if(!ex.length){ toast("還沒勾任何一組"); return }
+  const e={
+    date:new Date().toISOString().slice(0,10),
+    type:"gym", venue:planVenue,
+    parts:[...parts], ex,
+    feel:document.getElementById("planFeel").value.trim(),
+    plan:curDay,
+    id:Date.now()
+  };
+  logs.unshift(e);
+  const wkNum=Object.keys(prog).filter(k=>prog[k]).length;
+  for(let i=1;i<=12;i++){
+    if(!prog[`w${i}${curDay}`]){ prog[`w${i}${curDay}`]=true; break }
+  }
+  save();
+  Object.keys(dayState).forEach(k=>{ if(k.startsWith(curDay+"_")) delete dayState[k] });
+  saveDay();
+  document.getElementById("planFeel").value="";
+  renderPlan(); renderWeeks(); renderLogs();
+  toast("已存成訓練紀錄 ✓");
+};
+
+// ---- 12 週進度 ----
+function renderWeeks(){
+  const wk=document.getElementById("weeks");
+  wk.innerHTML="";
+  for(let i=1;i<=12;i++){
+    if(i===1||i===7){
+      const p=document.createElement("div");
+      p.className="phase";
+      p.textContent = i===1 ? "第 1–6 週 · 建立感覺 12–15 下" : "第 7–12 週 · 加重 8–12 下";
+      wk.appendChild(p);
+    }
+    const row=document.createElement("div");
+    row.className="wk";
+    row.innerHTML=`<div class="wk-l"><span class="wk-n">W${i}</span></div><div class="chk"></div>`;
+    const c=row.querySelector(".chk");
+    ["A","B"].forEach(day=>{
+      const k=`w${i}${day}`;
+      const b=document.createElement("button");
+      b.textContent=day;
+      if(prog[k]) b.classList.add("done");
+      b.onclick=()=>{ prog[k]=!prog[k]; b.classList.toggle("done"); save() };
+      c.appendChild(b);
+    });
+    wk.appendChild(row);
+  }
+}
+renderWeeks();
+renderPlanVenue();
+renderPlan();
+
+// ---- 歷史 ----
+function fmt(e){
+  if(e.type==="gym"){
+    const parts=e.parts&&e.parts.length?e.parts.join("、")+" — ":"";
+    return parts+e.ex.map(x=>`${x.name} ${x.kg||"?"}kg×${x.rep||"?"}×${x.set||"?"}`).join("　/　");
+  }
+  if(e.type==="run"){
+    let s=[];
+    if(e.kind) s.push(e.kind);
+    if(e.km) s.push(e.km+"km");
+    if(e.min) s.push(e.min+"分");
+    if(e.pace) s.push(e.pace+"/km");
+    if(e.hr) s.push("平均HR "+e.hr);
+    if(e.hrmax) s.push("最大HR "+e.hrmax);
+    if(e.cap) s.push("上限設"+e.cap);
+    if(e.cad) s.push("步頻 "+e.cad);
+    if(e.runmin||e.walkmin) s.push(`跑${e.runmin||0}/走${e.walkmin||0}分`);
+    if(e.gain) s.push("爬升"+e.gain+"m");
+    if(e.note) s.push(e.note);
+    return s.join("　/　");
+  }
+  if(e.type==="dive") return `${e.dives} 潛 · ${e.role}`;
+  if(e.type==="hike"){
+    let s=[];
+    if(e.name) s.push(e.name);
+    if(e.min) s.push(e.min+"分");
+    if(e.pack&&e.pack!=="0") s.push("負重"+e.pack+"kg");
+    return s.join("　/　");
+  }
+  return "";
+}
+const TAG={gym:["gym","重訓"],run:["run","有氧"],dive:["dive","潛水"],hike:["hike","郊山"]};
+
+function renderLogs(){
+  const box=document.getElementById("logs");
+  const now=new Date();
+  const wkAgo=new Date(now-7*864e5);
+  document.getElementById("s-week").textContent=logs.filter(l=>new Date(l.date)>=wkAgo).length;
+  document.getElementById("s-total").textContent=logs.length;
+  document.getElementById("s-streak").textContent=
+    logs.filter(l=>{const d=new Date(l.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).length;
+
+  if(!logs.length){
+    box.innerHTML=`<div class="empty"><b>還沒有紀錄</b>去「記錄」分頁存下第一次訓練</div>`;
+    return;
+  }
+  box.innerHTML="";
+  logs.forEach(e=>{
+    const t=TAG[e.type];
+    const label = e.type==="gym" ? (isHome(e.venue)?"home":"gym") : t[0];
+    const name  = e.type==="gym" ? (e.venue||"重訓") : t[1];
+    const div=document.createElement("div");
+    div.className="log";
+    div.innerHTML=`<div class="log-h"><span class="log-d">${e.date}</span>
+      <span style="display:flex;gap:8px;align-items:center">
+      <span class="tag ${label}">${name}</span>
+      <button class="log-x" aria-label="刪除">×</button></span></div>
+      <div class="log-b">${fmt(e)}${e.feel?`<br><span style="color:var(--warn)">↳ ${e.feel}</span>`:""}</div>`;
+    div.querySelector(".log-x").onclick=()=>{
+      if(confirm("刪除這筆紀錄？")){
+        logs=logs.filter(x=>x.id!==e.id); save(); renderLogs();
+      }
+    };
+    box.appendChild(div);
+  });
+}
+
+// ---- 匯出 ----
+function getRange(){
+  const n=+document.getElementById("range").value;
+  if(n>=9999) return logs;
+  const cut=new Date(Date.now()-n*864e5);
+  return logs.filter(l=>new Date(l.date)>=cut);
+}
+function buildText(){
+  const d=getRange();
+  if(!d.length) return "這個範圍內沒有紀錄。";
+  let out="【訓練紀錄匯出】\n";
+  out+=`區間：${document.getElementById("range").selectedOptions[0].textContent}　共 ${d.length} 筆\n`;
+  out+="—————————————\n";
+  d.forEach(e=>{
+    const t=TAG[e.type][1];
+    const place = e.type==="gym" ? `（${e.venue}）` : "";
+    out+=`\n${e.date}　[${t}]${place}\n${fmt(e)}\n`;
+    if(e.feel) out+=`感受：${e.feel}\n`;
+  });
+  out+="\n—————————————\n請依這些紀錄做本週分析與課表調整建議。";
+  return out;
+}
+function renderExport(){ document.getElementById("preview").textContent=buildText() }
+document.getElementById("range").onchange=renderExport;
+
+document.getElementById("copy").onclick=async()=>{
+  const txt=buildText();
+  try{
+    await navigator.clipboard.writeText(txt);
+    toast("已複製 ✓ 貼給教練就好");
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=txt; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+    toast("已複製 ✓");
+  }
+};
+
+document.getElementById("csv").onclick=()=>{
+  const d=getRange();
+  if(!d.length){ toast("沒有資料可下載"); return }
+  let rows=[["日期","類型","地點","部位","動作","重量kg","次數","組數",
+             "距離km","時間分","平均配速","平均HR","最大HR","HR上限","步頻",
+             "跑步分","步行分","爬升m","備註","感受"]];
+  d.forEach(e=>{
+    const base=[e.date,TAG[e.type][1],e.venue||"",(e.parts||[]).join(" ")];
+    if(e.type==="gym"){
+      e.ex.forEach(x=>rows.push([...base,x.name,x.kg,x.rep,x.set,
+        "","","","","","","","","","",e.feel||""]));
+    }else if(e.type==="run"){
+      rows.push([...base,e.kind||"","","","",
+        e.km||"",e.min||"",e.pace||"",e.hr||"",e.hrmax||"",e.cap||"",e.cad||"",
+        e.runmin||"",e.walkmin||"",e.gain||"",e.note||"",e.feel||""]);
+    }else{
+      rows.push([...base,e.name||e.role||"","","","",
+        "",e.min||"","","","","","","","","",
+        (e.dives?e.dives+"潛":"")+(e.pack?" 負重"+e.pack+"kg":""),e.feel||""]);
+    }
+  });
+  const csv="\uFEFF"+rows.map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download=`訓練紀錄_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast("CSV 已下載 ✓");
+};
+
+applyGoal();
+renderLogs();
+</script>
+</body>
+</html>
